@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
+  Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -98,8 +99,31 @@ export default function App() {
     setView('lista');
   };
 
-  const handleDeleteRecipe = (id) => {
-    setRecipes((current) => current.filter((r) => r.id !== id));
+  // 🔹 Função com modal de confirmação
+  const handleDeleteRecipe = (id, title) => {
+    if (Platform.OS === 'web') {
+      // Navegador usa confirm()
+      const confirmDelete = window.confirm(`Tem certeza que deseja excluir a receita "${title}"?`);
+      if (confirmDelete) {
+        setRecipes((current) => current.filter((r) => r.id !== id));
+      }
+    } else {
+      // Mobile usa Alert
+      Alert.alert(
+        "Excluir Receita",
+        `Tem certeza que deseja excluir a receita "${title}"?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Excluir",
+            style: "destructive",
+            onPress: () => {
+              setRecipes((current) => current.filter((r) => r.id !== id));
+            }
+          }
+        ]
+      );
+    }
   };
 
   const handleEditRecipe = (recipe) => {
@@ -148,7 +172,7 @@ export default function App() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => handleDeleteRecipe(item.id)}
+                      onPress={() => handleDeleteRecipe(item.id, item.title)}
                     >
                       <Text style={styles.buttonText}>Excluir</Text>
                     </TouchableOpacity>
@@ -217,13 +241,8 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContainer: {
-    padding: 16,
-  },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  scrollContainer: { padding: 16 },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -231,17 +250,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     color: '#e67e22',
   },
-  formContainer: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-  },
-  formHeader: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
+  formContainer: { backgroundColor: '#fff', padding: 20, borderRadius: 10 },
+  formHeader: { fontSize: 22, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
   input: {
     borderColor: '#bdc3c7',
     borderWidth: 1,
@@ -250,25 +260,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
-  textArea: {
-    height: 100,
-  },
-  formActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  formButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: '#95a5a6',
-  },
-  saveButton: {
-    backgroundColor: '#27ae60',
-  },
+  textArea: { height: 100 },
+  formActions: { flexDirection: 'row', justifyContent: 'space-around' },
+  formButton: { flex: 1, padding: 12, borderRadius: 5, marginHorizontal: 5 },
+  cancelButton: { backgroundColor: '#95a5a6' },
+  saveButton: { backgroundColor: '#27ae60' },
   addButton: {
     backgroundColor: '#007bff',
     padding: 15,
@@ -285,45 +281,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  recipeTextContainer: {
-    flex: 1,
-    marginRight: 15,
-  },
-  recipeTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  recipeIngredients: {
-    fontSize: 16,
-    color: '#7f8c8d',
-    marginTop: 5,
-  },
-  recipeMethod: {
-    fontSize: 16,
-    color: '#2c3e50',
-    marginTop: 5,
-  },
+  recipeTextContainer: { flex: 1, marginRight: 15 },
+  recipeTitle: { fontSize: 20, fontWeight: 'bold' },
+  recipeIngredients: { fontSize: 16, color: '#7f8c8d', marginTop: 5 },
+  recipeMethod: { fontSize: 16, color: '#2c3e50', marginTop: 5 },
   actionButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
     marginBottom: 5,
   },
-  editButton: {
-    backgroundColor: '#f39c12',
-  },
-  deleteButton: {
-    backgroundColor: '#e74c3c',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 30,
-    fontSize: 18,
-    color: '#95a5a6',
-  },
+  editButton: { backgroundColor: '#f39c12' },
+  deleteButton: { backgroundColor: '#e74c3c' },
+  buttonText: { color: 'white', fontWeight: 'bold', textAlign: 'center' },
+  emptyText: { textAlign: 'center', marginTop: 30, fontSize: 18, color: '#95a5a6' },
 });
