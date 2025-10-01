@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -98,8 +99,33 @@ export default function App() {
     setView('lista');
   };
 
-  const handleDeleteRecipe = (id) => {
-    setRecipes((current) => current.filter((r) => r.id !== id));
+  // Função de excluir com confirmação (funciona no web e mobile)
+  const handleDeleteRecipe = (id, title) => {
+    if (Platform.OS === "web") {
+      // 🚀 No navegador
+      const confirmDelete = window.confirm(
+        `Você tem certeza que deseja excluir a receita "${title}"?`
+      );
+      if (confirmDelete) {
+        setRecipes((current) => current.filter((r) => r.id !== id));
+      }
+    } else {
+      // 📱 No Android/iOS
+      Alert.alert(
+        "Excluir Receita",
+        `Você tem certeza que deseja excluir a receita "${title}"?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Excluir",
+            style: "destructive",
+            onPress: () => {
+              setRecipes((current) => current.filter((r) => r.id !== id));
+            }
+          }
+        ]
+      );
+    }
   };
 
   const handleEditRecipe = (recipe) => {
@@ -148,7 +174,7 @@ export default function App() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => handleDeleteRecipe(item.id)}
+                      onPress={() => handleDeleteRecipe(item.id, item.title)}
                     >
                       <Text style={styles.buttonText}>Excluir</Text>
                     </TouchableOpacity>
@@ -313,7 +339,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f39c12',
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundgitColor: '#e74c3c',
   },
   buttonText: {
     color: 'white',
